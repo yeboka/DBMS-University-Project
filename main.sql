@@ -15,7 +15,6 @@ create table Department (
 create table Courses (
     course_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
     dep_id INTEGER NOT NULL ,
-    course_name TEXT NOT NULL ,
     ects INTEGER not null ,
     degree TEXT,
     FOREIGN KEY (dep_id)
@@ -73,6 +72,7 @@ create table Clubs (
     name TEXT NOT NULL UNIQUE ,
     head_id INTEGER NOT NULL UNIQUE ,
     room TEXT ,
+    num_of_members INTEGER NOT NULL default 0,
     FOREIGN KEY (head_id)
                    references Students (student_id)
 );
@@ -99,14 +99,6 @@ create table Rooms (
     num_residents INTEGER Not NULL default 0,
     max_residents INTEGER NOT NULL ,
     PRIMARY KEY (room_id)
-);
-
-create table University (
-    id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
-    name text UNIQUE NOT NULL ,
-    rector_name TEXT UNIQUE NOT NULL ,
-    address TEXT NOT NULL ,
-    phone_number TEXT NOT NULL
 );
 
 create table Person (
@@ -139,7 +131,7 @@ create table Checkpoint (
     date TEXT NOT NULL ,
     FOREIGN KEY (person_id)
                         references Person (id)
-)
+);
 
 
 create table Scholarship (
@@ -148,25 +140,33 @@ create table Scholarship (
     foreign key (stud_id)
                          references Students(student_id)
 
-)
+);
 
-create trigger scholarship
-    after update on Enroll
-    when (old.student_id = new.student_id and old.section_id = new.section_id and old.grade <> new.grade and (select count(student_id) from Enroll where grade >= 70) = (select count(student_id) from Enroll) )
-    begin
-        insert into Scholarship(stud_id, scholarship_type, amount) values (new.student_id,1,36660);
-    end;
+create table Scholarship_type (
+                                  scholarship_type TEXT PRIMARY KEY NOT NULL ,
+                                  amount INTEGER NOT NULL default 0
+);
 
-create trigger gpaEvaluate
-    after update on Enroll
-    when (old.student_id = new.student_id and old.section_id = new.section_id and old.grade <> new.grade)
-    begin
-        insert into Scholarship(stud_id, scholarship_type, amount) VALUES (new.student_id, 1, 30000);
-    end;
 create table Retakes(
-    stud_id integer not null ,
-    course_id integer not null,
-    foreign key(stud_id) references Students(student_id),
-    foreign key(course_id) references Courses(course_id)
+                        stud_id integer not null ,
+                        course_id integer not null,
+                        foreign key(stud_id) references Students(student_id),
+                        foreign key(course_id) references Courses(course_id)
 
 )
+
+--
+-- create trigger scholarship
+--     after update on Enroll
+--     when (old.student_id = new.student_id and old.section_id = new.section_id and old.grade <> new.grade and (select count(student_id) from Enroll where grade >= 70) = (select count(student_id) from Enroll) )
+--     begin
+--         insert into Scholarship(stud_id, scholarship_type, amount) values (new.student_id,1,36660);
+--     end;
+--
+-- create trigger gpaEvaluate
+--     after update on Enroll
+--     when (old.student_id = new.student_id and old.section_id = new.section_id and old.grade <> new.grade)
+--     begin
+--         insert into Scholarship(stud_id, scholarship_type, amount) VALUES (new.student_id, 1, 30000);
+--     end;
+

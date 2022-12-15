@@ -87,6 +87,15 @@ create table EnrollClubs (
                          references Clubs (club_id)
 );
 
+create table EnrollDorm (
+    student_id INTEGER NOT NULL unique ,
+    room_id INTEGER NOT NULL,
+    FOREIGN KEY (student_id)
+                         references Students (student_id),
+    FOREIGN KEY (room_id)
+                         references Rooms (room_id)
+);
+
 create table Groups (
     group_id INTEGER NOT NULL UNIQUE PRIMARY KEY ,
     instructor_id INTEGER NOT NULL UNIQUE ,
@@ -113,7 +122,7 @@ create table Stuff (
     stuff_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
     job_id INTEGER NOT NULL ,
     FOREIGN KEY (job_id)
-                         references Department (dep_id),
+                         references Jobs (job_id),
     FOREIGN KEY (stuff_id)
                          references Person (id)
 );
@@ -158,7 +167,7 @@ create table Retakes(
 --
 -- create trigger scholarship
 --     after update on Enroll
---     when (old.student_id = new.student_id and old.section_id = new.section_id and old.grade <> new.grade and (select count(student_id) from Enroll where grade >= 70) = (select count(student_id) from Enroll) )
+    --     when (old.student_id = new.student_id and old.section_id = new.section_id and old.grade <> new.grade and (select count(student_id) from Enroll where grade >= 70) = (select count(student_id) from Enroll) )
 --     begin
 --         insert into Scholarship(stud_id, scholarship_type, amount) values (new.student_id,1,36660);
 --     end;

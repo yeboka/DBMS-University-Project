@@ -1,0 +1,231 @@
+table,Department,Department,4,"CREATE TABLE Department (
+    dep_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
+    dep_name TEXT UNIQUE NOT NULL,
+    faculty_id INTEGER NOT NULL,
+    FOREIGN KEY (faculty_id)
+                        references Faculty (faculty_id)
+)"
+index,sqlite_autoindex_Department_1,Department,5,
+index,sqlite_autoindex_Department_2,Department,6,
+table,Sections,Sections,11,"CREATE TABLE Sections (
+    section_id PRIMARY KEY NOT NULL UNIQUE ,
+    course_id NOT NULL ,
+    instructor_id NOT NULL ,
+    FOREIGN KEY (course_id)
+                      references Courses (course_id),
+    FOREIGN KEY (instructor_id)
+                      references Instructors (instructor_id)
+)"
+index,sqlite_autoindex_Sections_1,Sections,12,
+table,Enroll,Enroll,15,"CREATE TABLE Enroll (
+    section_id INTEGER NOT NULL ,
+    student_id INTEGER NOT NULL ,
+    grade REAL,
+    PRIMARY KEY (section_id, student_id) ,
+    FOREIGN KEY (student_id)
+                    references Students (student_id) ,
+    FOREIGN KEY (section_id)
+                    references Sections (section_id)
+)"
+index,sqlite_autoindex_Enroll_1,Enroll,16,
+table,EnrollClubs,EnrollClubs,21,"CREATE TABLE EnrollClubs (
+    student_id INTEGER NOT NULL ,
+    club_id INTEGER NOT NULL ,
+    PRIMARY KEY (student_id, club_id),
+    FOREIGN KEY (student_id)
+                         references Students (student_id),
+    FOREIGN KEY (club_id)
+                         references Clubs (club_id)
+)"
+index,sqlite_autoindex_EnrollClubs_1,EnrollClubs,22,
+table,Groups,Groups,23,"CREATE TABLE Groups (
+    group_id INTEGER NOT NULL UNIQUE PRIMARY KEY ,
+    instructor_id INTEGER NOT NULL UNIQUE ,
+    FOREIGN KEY (instructor_id)
+                    references Instructors (instructor_id)
+)"
+index,sqlite_autoindex_Groups_1,Groups,24,
+index,sqlite_autoindex_Groups_2,Groups,25,
+table,Instructors,Instructors,9,"CREATE TABLE Instructors (
+    instructor_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
+    dep_id INTEGER NOT NULL ,
+    degree TEXT ,
+    FOREIGN KEY (dep_id)
+                         references Department (dep_id),
+    FOREIGN KEY (instructor_id)
+                         references Person (id)
+)"
+index,sqlite_autoindex_Instructors_1,Instructors,10,
+table,Jobs,Jobs,34,"CREATE TABLE Jobs (
+    job_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
+    name TEXT NOT NULL unique ,
+    salary INTEGER NOT NULL default (0)
+)"
+index,sqlite_autoindex_Jobs_1,Jobs,35,
+index,sqlite_autoindex_Jobs_2,Jobs,38,
+table,Parking,Parking,41,"CREATE TABLE Parking (
+    number INTEGER PRIMARY KEY  NOT NULL UNIQUE ,
+    person_id INTEGER NOT NULL UNIQUE ,
+    FOREIGN KEY (person_id)
+                     references Person (id)
+)"
+index,sqlite_autoindex_Parking_1,Parking,42,
+index,sqlite_autoindex_Parking_2,Parking,43,
+table,Checkpoint,Checkpoint,45,"CREATE TABLE Checkpoint (
+    person_id INTEGER NOT NULL ,
+    I_O Text NOT NULL ,
+    date TEXT NOT NULL ,
+    FOREIGN KEY (person_id)
+                        references Person (id)
+)"
+table,Students,Students,13,"CREATE TABLE Students (
+    student_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
+    dep_id INTEGER NOT NULL ,
+    group_id INTEGER NOT NULL ,
+    year INTEGER NOT NULL ,
+    degree TEXT NOT NULL ,
+    GPA REAL NOT NULL default (0),
+    FOREIGN KEY  (dep_id)
+                      references Department (dep_id),
+    FOREIGN KEY (student_id)
+                      references Person (id) ,
+    FOREIGN KEY (group_id)
+                      references Groups (group_id)
+)"
+index,sqlite_autoindex_Students_1,Students,14,
+table,Person,Person,32,"CREATE TABLE Person (
+    id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
+    name TEXT NOT NULL ,
+    age INTEGER NOT NULL ,
+    mail TEXT NOT NULL ,
+    sex TEXT NOT NULL,
+    type TEXT NOT NULL
+)"
+index,sqlite_autoindex_Person_1,Person,33,
+trigger,Deduction,Students,0,"CREATE TRIGGER Deduction
+    after delete on Students
+    begin
+        delete from Enroll where Enroll.student_id = old.student_id ;
+        delete from EnrollClubs where EnrollClubs.student_id = old.student_id;
+        delete from EnrollDorm where EnrollDorm.student_id = old.student_id;
+    end"
+table,Courses,Courses,7,"CREATE TABLE Courses (
+    course_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
+    dep_id INTEGER NOT NULL ,
+    ects INTEGER not null ,
+    degree TEXT, course_name text not null,
+    FOREIGN KEY (dep_id)
+                     references Department (dep_id)
+)"
+index,sqlite_autoindex_Courses_1,Courses,8,
+table,Rooms,Rooms,26,"CREATE TABLE Rooms (
+    room_id INTEGER NOT NULL ,
+    num_residents INTEGER Not NULL default 0,
+    max_residents INTEGER NOT NULL ,
+    PRIMARY KEY (room_id)
+)"
+table,Scholarship_type,Scholarship_type,48,"CREATE TABLE Scholarship_type(
+    scholarship_type text primary key ,
+    amount integer not null default 0
+)"
+index,sqlite_autoindex_Scholarship_type_1,Scholarship_type,49,
+table,Scholarship,Scholarship,37,"CREATE TABLE Scholarship (
+    stud_id Integer unique,
+    scholarship_type text not null default ('Academic Scholarships'),
+    foreign key (stud_id)
+                         references Students(student_id),
+    foreign key (scholarship_type) references Scholarship_type(scholarship_type)
+)"
+index,sqlite_autoindex_Scholarship_1,Scholarship,47,
+table,Retakes,Retakes,36,"CREATE TABLE Retakes(
+    stud_id integer not null ,
+    course_id integer not null,
+    foreign key(stud_id) references Students(student_id),
+    foreign key(course_id) references Courses(course_id)
+
+)"
+table,Stuff,Stuff,39,"CREATE TABLE Stuff (
+    stuff_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
+    job_id INTEGER NOT NULL ,
+    FOREIGN KEY (job_id)
+                         references Jobs (job_id),
+    FOREIGN KEY (stuff_id)
+                         references Person (id)
+)"
+index,sqlite_autoindex_Stuff_1,Stuff,40,
+table,EnrollDorm,EnrollDorm,27,"CREATE TABLE EnrollDorm (
+    student_id INTEGER NOT NULL unique ,
+    room_id INTEGER NOT NULL,
+    FOREIGN KEY (student_id)
+                         references Students (student_id),
+    FOREIGN KEY (room_id)
+                         references Rooms (room_id)
+)"
+index,sqlite_autoindex_EnrollDorm_1,EnrollDorm,29,
+table,Faculty,Faculty,54,"CREATE TABLE ""Faculty""
+(
+    faculty_id   INTEGER not null
+        primary key
+        unique,
+    faculty_name TEXT    not null,
+    decan_name   TEXT    not null
+)"
+index,sqlite_autoindex_Faculty_1,Faculty,55,
+trigger,EnrollToDorm,EnrollDorm,0,"CREATE TRIGGER EnrollToDorm
+     after insert on EnrollDorm
+    when(select num_residents from Rooms where new.room_id = Rooms.room_id)
+            <> (select max_residents from Rooms where new.room_id = Rooms.room_id)
+    begin
+        update Rooms set num_residents = (select num_residents from Rooms
+                                                               where new.room_id = Rooms.room_id) + 1 where new.room_id = Rooms.room_id;
+    end"
+trigger,DeleteFromEnrollDorm,EnrollDorm,0,"CREATE TRIGGER DeleteFromEnrollDorm
+     after insert on EnrollDorm
+    when(select num_residents from Rooms where new.room_id = Rooms.room_id)
+            = (select max_residents from Rooms where new.room_id = Rooms.room_id)
+    begin
+        delete from EnrollDorm where student_id =new.student_id;
+    end"
+table,Club_info,Club_info,2,"CREATE TABLE Club_info(
+    name text primary key unique not null ,
+    head_id integer not null unique,
+    room text,
+    num_of_members integer default 0 not null ,
+    foreign key (head_id) references Students(student_id)
+)"
+index,sqlite_autoindex_Club_info_1,Club_info,3,
+index,sqlite_autoindex_Club_info_2,Club_info,56,
+table,Clubs,Clubs,17,"CREATE TABLE Clubs (
+    club_id integer not null primary key ,
+    club_name text not null unique ,
+    foreign key (club_id) references Club_info (name)
+)"
+index,sqlite_autoindex_Clubs_1,Clubs,18,
+view,info_scholarship_studs,info_scholarship_studs,0,"CREATE VIEW info_scholarship_studs
+as
+    select stud_id, name, scholarship_type, mail, sex from Scholarship, Person where id = stud_id"
+table,Clinic,Clinic,19,"CREATE TABLE Clinic
+(
+    id integer primary key ,
+    doctor_id  INTEGER not null
+        references Stuff,
+    patient_id INTEGER not null
+        references Person,
+    diagnosis  TEXT    not null,
+    date       TEXT    not null
+)"
+index,my_index_name,Clinic,44,"CREATE INDEX my_index_name ON Clinic(doctor_id, patient_id, diagnosis, date)"
+index,idx_persons,Person,20,"CREATE INDEX idx_persons on Person (id, name, mail, type, sex)"
+trigger,DeleteScholarship,Enroll,0,"CREATE TRIGGER DeleteScholarship
+    after update of grade on Enroll
+    when ((select count(student_id) from Enroll where grade >= 70) <> (select count(student_id) from Enroll) )
+    begin
+        delete from Scholarship where Scholarship.stud_id = new.student_id;
+    end"
+trigger,gpaEvaluate,Enroll,0,"CREATE TRIGGER gpaEvaluate
+    after update of grade on Enroll
+    begin
+        update Students set GPA = (((select sum(grade) from Enroll where Enroll.student_id = new.student_id)
+                                       / (select count(grade) from Enroll where Enroll.student_id = new.student_id)) * 4 / 100 )
+                        where Students.student_id = new.student_id;
+    end"

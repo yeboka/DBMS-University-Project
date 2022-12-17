@@ -1,181 +1,231 @@
-create table Faculty (
-    faculty_id INTEGER PRIMARY KEY not null UNIQUE,
-    faculty_name TEXT NOT NULL,
-    decan_id INTEGER NOT NULL
+
+create table Person
+(
+    id   INTEGER not null
+        primary key
+        unique,
+    name TEXT    not null,
+    age  INTEGER not null,
+    mail TEXT    not null,
+    sex  TEXT    not null,
+    type TEXT    not null
 );
 
-create table Department (
-    dep_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
-    dep_name TEXT UNIQUE NOT NULL,
-    faculty_id INTEGER NOT NULL,
-    FOREIGN KEY (faculty_id)
-                        references Faculty (faculty_id)
+create table Faculty
+(
+    faculty_id   INTEGER not null
+        primary key
+        unique,
+    faculty_name TEXT    not null,
+    decan_name   TEXT    not null
 );
 
-create table Courses (
-    course_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
-    dep_id INTEGER NOT NULL ,
-    ects INTEGER not null ,
-    degree TEXT,
-    FOREIGN KEY (dep_id)
-                     references Department (dep_id)
-);
-
-create table Instructors (
-    instructor_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
-    dep_id INTEGER NOT NULL ,
-    degree TEXT ,
-    FOREIGN KEY (dep_id)
-                         references Department (dep_id),
-    FOREIGN KEY (instructor_id)
-                         references Person (id)
-);
-
-create table Sections (
-    section_id PRIMARY KEY NOT NULL UNIQUE ,
-    course_id NOT NULL ,
-    instructor_id NOT NULL ,
-    FOREIGN KEY (course_id)
-                      references Courses (course_id),
-    FOREIGN KEY (instructor_id)
-                      references Instructors (instructor_id)
-);
-
-create table Students (
-    student_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
-    dep_id INTEGER NOT NULL ,
-    group_id INTEGER NOT NULL ,
-    year INTEGER NOT NULL ,
-    degree TEXT NOT NULL ,
-    GPA REAL NOT NULL default (0),
-    FOREIGN KEY  (dep_id)
-                      references Department (dep_id),
-    FOREIGN KEY (student_id)
-                      references Person (id) ,
-    FOREIGN KEY (group_id)
-                      references Groups (group_id)
-);
-
-create table Enroll (
-    section_id INTEGER NOT NULL ,
-    student_id INTEGER NOT NULL ,
-    grade REAL,
-    PRIMARY KEY (section_id, student_id) ,
-    FOREIGN KEY (student_id)
-                    references Students (student_id) ,
-    FOREIGN KEY (section_id)
-                    references Sections (section_id)
-);
-
-create table Clubs (
-    club_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
-    name TEXT NOT NULL UNIQUE ,
-    head_id INTEGER NOT NULL UNIQUE ,
-    room TEXT ,
-    num_of_members INTEGER NOT NULL default 0,
-    FOREIGN KEY (head_id)
-                   references Students (student_id)
-);
-
-create table EnrollClubs (
-    student_id INTEGER NOT NULL ,
-    club_id INTEGER NOT NULL ,
-    PRIMARY KEY (student_id, club_id),
-    FOREIGN KEY (student_id)
-                         references Students (student_id),
-    FOREIGN KEY (club_id)
-                         references Clubs (club_id)
-);
-
-create table EnrollDorm (
-    student_id INTEGER NOT NULL unique ,
-    room_id INTEGER NOT NULL,
-    FOREIGN KEY (student_id)
-                         references Students (student_id),
-    FOREIGN KEY (room_id)
-                         references Rooms (room_id)
-);
-
-create table Groups (
-    group_id INTEGER NOT NULL UNIQUE PRIMARY KEY ,
-    instructor_id INTEGER NOT NULL UNIQUE ,
-    FOREIGN KEY (instructor_id)
-                    references Instructors (instructor_id)
-);
-
-create table Rooms (
-    room_id INTEGER NOT NULL ,
-    num_residents INTEGER Not NULL default 0,
-    max_residents INTEGER NOT NULL ,
-    PRIMARY KEY (room_id)
-);
-
-create table Person (
-    id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
-    name TEXT NOT NULL ,
-    age INTEGER NOT NULL ,
-    mail INTEGER NOT NULL ,
-    sex INTEGER NOT NULL
-);
-
-create table Stuff (
-    stuff_id INTEGER PRIMARY KEY NOT NULL UNIQUE ,
-    job_id INTEGER NOT NULL ,
-    FOREIGN KEY (job_id)
-                         references Jobs (job_id),
-    FOREIGN KEY (stuff_id)
-                         references Person (id)
-);
-
-create table Parking (
-    number INTEGER PRIMARY KEY  NOT NULL UNIQUE ,
-    person_id INTEGER NOT NULL UNIQUE ,
-    FOREIGN KEY (person_id)
-                     references Person (id)
-);
-
-create table Checkpoint (
-    person_id INTEGER NOT NULL ,
-    I_O Text NOT NULL ,
-    date TEXT NOT NULL ,
-    FOREIGN KEY (person_id)
-                        references Person (id)
+create table Department
+(
+    dep_id     INTEGER not null
+        primary key
+        unique,
+    dep_name   TEXT    not null
+        unique,
+    faculty_id INTEGER not null
+        references Faculty
 );
 
 
-create table Scholarship (
-    stud_id Integer unique,
-    scholarship_type text not null default ('Academic Scholarships'),
-    foreign key (stud_id)
-                         references Students(student_id)
 
+create table Instructors
+(
+    instructor_id INTEGER not null
+        primary key
+        unique
+        references Person,
+    dep_id        INTEGER not null
+        references Department,
+    degree        TEXT
 );
 
-create table Scholarship_type (
-                                  scholarship_type TEXT PRIMARY KEY NOT NULL ,
-                                  amount INTEGER NOT NULL default 0
+create table Groups
+(
+    group_id      INTEGER not null
+        primary key
+        unique,
+    instructor_id INTEGER not null
+        unique
+        references Instructors
 );
 
-create table Retakes(
-                        stud_id integer not null ,
-                        course_id integer not null,
-                        foreign key(stud_id) references Students(student_id),
-                        foreign key(course_id) references Courses(course_id)
 
-)
+create table Students
+(
+    student_id INTEGER        not null
+        primary key
+        unique
+        references Person,
+    dep_id     INTEGER        not null
+        references Department,
+    group_id   INTEGER        not null
+        references Groups,
+    year       INTEGER        not null,
+    degree     TEXT           not null,
+    GPA        REAL default 0 not null
+);
 
---
--- create trigger scholarship
---     after update on Enroll
-    --     when (old.student_id = new.student_id and old.section_id = new.section_id and old.grade <> new.grade and (select count(student_id) from Enroll where grade >= 70) = (select count(student_id) from Enroll) )
---     begin
---         insert into Scholarship(stud_id, scholarship_type, amount) values (new.student_id,1,36660);
---     end;
---
--- create trigger gpaEvaluate
---     after update on Enroll
---     when (old.student_id = new.student_id and old.section_id = new.section_id and old.grade <> new.grade)
---     begin
---         insert into Scholarship(stud_id, scholarship_type, amount) VALUES (new.student_id, 1, 30000);
---     end;
+
+create table Jobs
+(
+    job_id INTEGER           not null
+        primary key
+        unique,
+    name   TEXT              not null
+        unique,
+    salary INTEGER default 0 not null
+);
+
+create table Stuff
+(
+    stuff_id INTEGER not null
+        primary key
+        unique
+        references Person,
+    job_id   INTEGER not null
+        references Jobs
+);
+
+create table Courses
+(
+    course_id   INTEGER not null
+        primary key
+        unique,
+    dep_id      INTEGER not null
+        references Department,
+    ects        INTEGER not null,
+    degree      TEXT,
+    course_name text    not null
+);
+
+create table Sections
+(
+    section_id    not null
+        primary key
+        unique,
+    course_id     not null
+        references Courses,
+    instructor_id not null
+        references Instructors
+);
+
+create table Enroll
+(
+    section_id INTEGER not null
+        references Sections,
+    student_id INTEGER not null
+        references Students,
+    grade      REAL,
+    primary key (section_id, student_id)
+);
+
+create table Club_info
+(
+    name           text              not null
+        primary key
+        unique,
+    head_id        integer           not null
+        unique
+        references Students,
+    room           text,
+    num_of_members integer default 0 not null
+);
+
+create table Clubs
+(
+    club_id   integer not null
+        primary key
+        references Club_info,
+    club_name text    not null
+        unique
+);
+
+create table Scholarship_type
+(
+    scholarship_type text
+        primary key,
+    amount           integer default 0 not null
+);
+
+create table Scholarship
+(
+    stud_id          Integer
+        unique
+        references Students,
+    scholarship_type text default 'Academic Scholarships' not null
+        references Scholarship_type
+);
+
+create table Retakes
+(
+    stud_id   integer not null
+        references Students,
+    course_id integer not null
+        references Courses
+);
+
+create table Rooms
+(
+    room_id       INTEGER           not null
+        primary key,
+    num_residents INTEGER default 0 not null,
+    max_residents INTEGER           not null
+);
+
+create table EnrollDorm
+(
+    student_id INTEGER not null
+        unique
+        references Students,
+    room_id    INTEGER not null
+        references Rooms
+);
+
+create table EnrollClubs
+(
+    student_id INTEGER not null
+        references Students,
+    club_id    INTEGER not null
+        references Clubs,
+    primary key (student_id, club_id)
+);
+
+create table Clinic
+(
+    id         integer
+        primary key,
+    doctor_id  INTEGER not null
+        references Stuff,
+    patient_id INTEGER not null
+        references Person,
+    diagnosis  TEXT    not null,
+    date       TEXT    not null
+);
+
+create table Checkpoint
+(
+    person_id INTEGER not null
+        references Person,
+    I_O       Text    not null,
+    date      TEXT    not null
+);
+
+create table Parking
+(
+    number    INTEGER not null
+        primary key
+        unique,
+    person_id INTEGER not null
+        unique
+        references Person
+);
+
+
+
+
 
